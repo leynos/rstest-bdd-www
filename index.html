@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rstest-bdd — BDD that runs as cargo test</title>
+<meta name="description" content="rstest-bdd binds Gherkin scenarios to plain rstest tests. One runner, shared fixtures, compile-time step checking. v0.6.0 adds runtime-agnostic harness adapters.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="rstest-bdd — BDD that runs as cargo test">
+<meta property="og:description" content="Gherkin scenarios as plain rstest tests: one runner, shared fixtures, compile-time step checking. v0.6.0 adds runtime-agnostic harness adapters.">
+<meta property="og:url" content="https://leynos.github.io/rstest-bdd-www/">
+<meta property="og:image" content="https://leynos.github.io/rstest-bdd-www/assets/img/og-card.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="640">
+<meta property="og:image:alt" content="rstest-bdd v0.6.0 — BDD that runs as cargo test. A needle-felted plushie crab beside a trellis of felt pumpkins and a gherkin.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="site-header">
+  <nav aria-label="Primary">
+    <a class="wordmark" href="#top">rstest-<span>bdd</span></a>
+    <ul>
+      <li><a href="#why">Why</a></li>
+      <li><a href="#quick-start">Quick start</a></li>
+      <li><a href="#v0-6-0">v0.6.0</a></li>
+      <li><a href="#compare">Compare</a></li>
+      <li><a href="https://github.com/leynos/rstest-bdd/blob/main/docs/users-guide.md">Docs</a></li>
+      <li><a href="https://github.com/leynos/rstest-bdd">GitHub</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main id="main">
+
+  <!-- ============================ Hero ============================ -->
+  <section class="hero" id="top" aria-labelledby="hero-heading">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="badge">v0.6.0 beta</span> Behaviour-driven development for Rust</p>
+      <h1 id="hero-heading">BDD that runs as <code>cargo&nbsp;test</code>.</h1>
+      <p class="lede">
+        rstest-bdd binds Gherkin scenarios to plain <a href="https://crates.io/crates/rstest">rstest</a>
+        tests. One runner, shared fixtures, no bespoke world object. Write the
+        feature file; the compiler checks the steps.
+      </p>
+      <div class="cta-row">
+        <a class="button button-primary" href="#quick-start">Get started</a>
+        <a class="button button-secondary" href="https://github.com/leynos/rstest-bdd/blob/main/docs/v0-6-0-migration-guide.md">Read the v0.6.0 migration guide</a>
+      </div>
+      <pre class="install-snippet"><code><span class="c"># Cargo.toml</span>
+[dev-dependencies]
+rstest = <span class="s">"0.26.1"</span>
+rstest-bdd = <span class="s">"0.6.0-beta3"</span></code></pre>
+      <ul class="trust-row">
+        <li>Stable Rust, no nightly</li>
+        <li>Scenario Outlines, Background, tables, and docstrings</li>
+        <li>ISC licence</li>
+      </ul>
+    </div>
+    <figure class="hero-art">
+      <img src="assets/img/hero-crab-trellis.webp" width="1200" height="800"
+           alt="A needle-felted plushie crab holding a clipboard with a green tick, tending a small wooden trellis where felt pumpkins and a gherkin grow on a vine.">
+      <figcaption>Marrow the crab inspects the trellis: three pumpkins, one gherkin, all passing.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ============================ Why ============================ -->
+  <section class="section" id="why" aria-labelledby="why-heading">
+    <h2 id="why-heading">Why rstest-bdd</h2>
+    <p class="section-lede">
+      Most BDD frameworks arrive with a runner, a world object, and opinions
+      about both. rstest-bdd arrives with an attribute macro.
+    </p>
+    <div class="feature-grid">
+      <article class="feature feature-lead">
+        <h3>One runner. The one already installed.</h3>
+        <p>
+          Scenarios execute as ordinary <code>cargo test</code> tests. Filters,
+          parallelism, IDE integration, and CI pipelines carry on unchanged,
+          because nothing about the toolchain changed.
+        </p>
+      </article>
+      <article class="feature">
+        <h3>First-class fixtures</h3>
+        <p>
+          Unit, integration, and BDD tests share the same rstest fixture graph.
+          State lives where rstest puts it – not in a framework-mandated
+          <code>World</code> struct.
+        </p>
+      </article>
+      <article class="feature">
+        <h3>Missing steps fail the build</h3>
+        <p>
+          Steps register at compile time. A scenario step with no matching
+          implementation is a compile error with a span, not a surprise at
+          minute forty of the CI run.
+        </p>
+      </article>
+      <article class="feature">
+        <h3>Typed placeholders</h3>
+        <p>
+          Patterns such as <code>{count:u32}</code> parse arguments via
+          <code>FromStr</code> before the step body runs. Regex groups remain
+          available for the rare case that needs them.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============================ Quick start ============================ -->
+  <section class="section section-dark" id="quick-start" aria-labelledby="qs-heading">
+    <h2 id="qs-heading">Quick start</h2>
+    <p class="section-lede">
+      A feature file names the behaviour. Plain functions implement the steps.
+      An attribute binds the two together.
+    </p>
+    <div class="code-pair">
+      <figure>
+        <figcaption><code>tests/features/basket.feature</code></figcaption>
+        <pre><code><span class="k">Feature:</span> Pumpkin basket
+
+  <span class="k">Scenario:</span> Add pumpkins
+    <span class="k">Given</span> an empty basket
+    <span class="k">When</span> I add 3 pumpkins
+    <span class="k">Then</span> the basket has 3 pumpkins</code></pre>
+      </figure>
+      <figure>
+        <figcaption><code>tests/basket.rs</code></figcaption>
+        <pre><code><span class="k">use</span> rstest::fixture;
+<span class="k">use</span> rstest_bdd::{scenario, given, when, then};
+
+<span class="a">#[fixture]</span>
+<span class="k">fn</span> <span class="f">basket</span>() -&gt; Basket { Basket::default() }
+
+<span class="a">#[scenario(path = <span class="s">"tests/features/basket.feature"</span>,
+           name = <span class="s">"Add pumpkins"</span>)]</span>
+<span class="k">fn</span> <span class="f">add_pumpkins_scenario</span>(basket: Basket) {}
+
+<span class="a">#[given(<span class="s">"an empty basket"</span>)]</span>
+<span class="k">fn</span> <span class="f">empty_basket</span>(basket: &amp;<span class="k">mut</span> Basket) {
+    basket.clear();
+}
+
+<span class="a">#[when(<span class="s">"I add {count:u32} pumpkins"</span>)]</span>
+<span class="k">fn</span> <span class="f">add_pumpkins</span>(basket: &amp;<span class="k">mut</span> Basket, count: u32) {
+    basket.add(Item::Pumpkin, count);
+}
+
+<span class="a">#[then(<span class="s">"the basket has {count:u32} pumpkins"</span>)]</span>
+<span class="k">fn</span> <span class="f">assert_count</span>(basket: &amp;Basket, count: u32) {
+    assert_eq!(basket.count(Item::Pumpkin), count);
+}</code></pre>
+      </figure>
+    </div>
+    <p class="code-footnote">
+      Run it with <code>cargo test</code>. Under the rind, <code>#[scenario]</code>
+      expands to an rstest test, so each scenario – and each Scenario Outline
+      case – appears individually in the test runner. The <code>&amp;mut Basket</code>
+      borrows are new in v0.6.0: mutable access to by-value fixtures, no
+      <code>RefCell</code> ceremony.
+    </p>
+  </section>
+
+  <!-- ============================ v0.6.0 ============================ -->
+  <section class="section" id="v0-6-0" aria-labelledby="v6-heading">
+    <h2 id="v6-heading">New in v0.6.0</h2>
+    <p class="section-lede">
+      The landmark change: scenario execution is now harness-driven. Async
+      runtimes, windowing frameworks, and custom infrastructure plug in
+      through one adapter interface instead of framework-specific flags.
+    </p>
+
+    <article class="feature feature-lead">
+      <h3>Harness adapters</h3>
+      <p>
+        <code>#[scenario]</code> and <code>scenarios!</code> accept a
+        <code>harness = ...</code> argument. Three first-party harnesses ship
+        ready to use – <code>StdHarness</code>, <code>TokioHarness</code>, and
+        <code>GpuiHarness</code> – and each infers its matching attribute
+        policy. Custom harnesses implement one trait in
+        <code>rstest-bdd-harness</code>.
+      </p>
+      <pre><code><span class="a">#[scenario(path = <span class="s">"tests/features/search.feature"</span>,
+           harness = rstest_bdd_harness_tokio::TokioHarness)]</span>
+<span class="k">fn</span> <span class="f">search_works</span>(world: SearchWorld) {}</code></pre>
+      <p>
+        <code>HarnessAdapter::run</code> returns <code>HarnessResult&lt;T&gt;</code>,
+        so a Tokio runtime that fails to build surfaces as
+        <code>HarnessError::RuntimeBuildFailed</code> – an infrastructure
+        failure, kept distinct from a scenario assertion failure.
+      </p>
+      <figure class="inline-art">
+        <img src="assets/img/harness-greenhouses.webp" width="1200" height="800"
+             alt="The needle-felted crab holds a potted seedling in front of three miniature felt greenhouses: one natural wool, one deep green, one soft blue."
+             loading="lazy">
+        <figcaption>Marrow picks a greenhouse for the same seedling – the scenario doesn't change, only the harness around it.</figcaption>
+      </figure>
+    </article>
+
+    <div class="feature-grid">
+      <article class="feature">
+        <h3>Mutable fixtures, minus the ceremony</h3>
+        <p>
+          Steps can request <code>&amp;mut Fixture</code> when the fixture is
+          provided by value. Modelling a mutable world no longer requires
+          <code>Cell</code> or <code>RefCell</code> wrappers.
+        </p>
+      </article>
+      <article class="feature">
+        <h3>Structured execution errors</h3>
+        <p>
+          The new <code>ExecutionError</code> enum replaces string-encoded skip
+          messages with proper variants: <code>Skip</code>,
+          <code>StepNotFound</code>, <code>MissingFixtures</code>, and
+          <code>HandlerFailed</code>.
+        </p>
+      </article>
+      <article class="feature">
+        <h3>Skip-aware assertions</h3>
+        <p>
+          <code>assert_step_ok!</code>, <code>assert_step_err!</code>,
+          <code>assert_step_skipped!</code>, and
+          <code>assert_scenario_skipped!</code> assert step outcomes without
+          manual pattern matching.
+        </p>
+      </article>
+      <article class="feature">
+        <h3>Typed data tables</h3>
+        <p>
+          Gherkin tables parse into <code>datatable::Rows&lt;T&gt;</code> for
+          row-typed access, or stay as <code>Vec&lt;Vec&lt;String&gt;&gt;</code>
+          where that suffices.
+        </p>
+      </article>
+      <article class="feature">
+        <h3>Language server controls</h3>
+        <p>
+          The language server accepts <code>--workspace-root</code> and
+          <code>--debounce-ms</code>, so editor integrations can pin workspace
+          discovery and tune file-change processing.
+        </p>
+      </article>
+      <article class="feature">
+        <h3>Predictable fixture names</h3>
+        <p>
+          Implicit fixture names now normalize exactly one leading underscore:
+          <code>_world</code> and <code>world</code> resolve to the same
+          fixture. Explicit <code>#[from(...)]</code> names remain exact.
+        </p>
+      </article>
+    </div>
+
+    <div class="migration-note">
+      <h3>Migrating from v0.5.x</h3>
+      <p>
+        Three breaking changes, all mechanical: underscore normalization,
+        the deprecated <code>runtime = "tokio-current-thread"</code> alias, and
+        the <code>HarnessResult</code> return type on custom adapters. The
+        <a href="https://github.com/leynos/rstest-bdd/blob/main/docs/v0-6-0-migration-guide.md">migration
+        guide</a> covers each with before-and-after code.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================ Compare ============================ -->
+  <section class="section section-tint" id="compare" aria-labelledby="compare-heading">
+    <h2 id="compare-heading">A different trade-off, not a replacement</h2>
+    <p class="section-lede">
+      cucumber-rs ports classic Cucumber to Rust and does it well. rstest-bdd
+      offers BDD as an extension of rstest for teams already invested in
+      <code>cargo test</code>. Step macros accept cucumber's
+      <code>expr&nbsp;=&nbsp;"..."</code> syntax to ease migration.
+    </p>
+    <div class="table-scroll">
+      <table>
+        <caption class="visually-hidden">Feature comparison between rstest-bdd and cucumber for Rust</caption>
+        <thead>
+          <tr><th scope="col">Feature</th><th scope="col">rstest-bdd</th><th scope="col">cucumber (Rust)</th></tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">Test runner</th><td><code>cargo test</code>, rstest underneath</td><td>Custom runner via <code>World::run(...)</code></td></tr>
+          <tr><th scope="row">State management</th><td>rstest fixtures</td><td><code>World</code> struct</td></tr>
+          <tr><th scope="row">Step discovery</th><td>Compile-time registration, runtime match</td><td>Runner-driven collection</td></tr>
+          <tr><th scope="row">Scenario Outline</th><td>Maps to rstest parametrization</td><td>Built into runner</td></tr>
+          <tr><th scope="row">Async</th><td>Runtime-agnostic via harness adapters</td><td>Built in, with a specified runtime</td></tr>
+          <tr><th scope="row">Philosophy</th><td>BDD as an extension of rstest</td><td>Rust port of classic Cucumber</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================ i18n ============================ -->
+  <section class="section" id="i18n" aria-labelledby="i18n-heading">
+    <div class="split">
+      <div>
+        <h2 id="i18n-heading">Feature files in any Gherkin language</h2>
+        <p>
+          Declare a locale on the first line of the feature file and the parser
+          loads the matching keyword catalogue – no configuration. Runtime
+          diagnostics ship as Fluent translations with English fallback, and
+          the <code>japanese-ledger</code> example runs two Japanese scenarios
+          end to end under <code>cargo test</code>.
+        </p>
+      </div>
+      <pre><code><span class="c"># language: fr</span>
+<span class="k">Fonctionnalité:</span> Panier
+  <span class="k">Scénario:</span> Ajouter un article
+    <span class="k">Étant donné</span> un panier vide
+    <span class="k">Quand</span> l'utilisateur ajoute une citrouille
+    <span class="k">Alors</span> le panier contient une citrouille</code></pre>
+    </div>
+  </section>
+
+  <!-- ============================ Closing CTA ============================ -->
+  <section class="section closing" aria-labelledby="closing-heading">
+    <h2 id="closing-heading">Grow the suite on the trellis already standing</h2>
+    <p>
+      Add two lines to <code>Cargo.toml</code>, write a feature file, and run
+      <code>cargo test</code>. First scenario in under five minutes.
+    </p>
+    <div class="cta-row cta-centre">
+      <a class="button button-primary" href="https://github.com/leynos/rstest-bdd/blob/main/docs/users-guide.md">Read the user's guide</a>
+      <a class="button button-secondary" href="https://crates.io/crates/rstest-bdd">rstest-bdd on crates.io</a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <nav aria-label="Footer">
+    <ul>
+      <li><a href="https://github.com/leynos/rstest-bdd">GitHub</a></li>
+      <li><a href="https://crates.io/crates/rstest-bdd">crates.io</a></li>
+      <li><a href="https://docs.rs/rstest-bdd">docs.rs</a></li>
+      <li><a href="https://github.com/leynos/rstest-bdd/blob/main/docs/users-guide.md">User's guide</a></li>
+      <li><a href="https://github.com/leynos/rstest-bdd/blob/main/docs/v0-6-0-migration-guide.md">v0.6.0 migration guide</a></li>
+    </ul>
+  </nav>
+  <p>
+    ISC licence. A df12 Productions project, based in Edinburgh, Scotland.
+    Illustrated by the df12 Productions plushie gang.
+  </p>
+  <p class="footer-signoff">May your scenarios be gourd-geous and your failures easy to squash.</p>
+</footer>
+
+</body>
+</html>
