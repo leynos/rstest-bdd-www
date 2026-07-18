@@ -38,9 +38,9 @@ For commit gating, run `git diff --check`, `make check-fmt`,
 ## Deployment
 
 `.github/workflows/publish-pages.yml` builds `dist/` and deploys it to
-GitHub Pages on every push to `main`. Before the first deployment,
-replace the relative `og:image` URL in `index.html` with the absolute
-production URL.
+GitHub Pages on every push to `main`. The production URL is
+<https://leynos.github.io/rstest-bdd-www/>; the `og:url` and `og:image`
+metadata in `index.html` reference it absolutely.
 
 ## Preview Workflow
 
