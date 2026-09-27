@@ -2,8 +2,8 @@
 
 ## Scope
 
-This repository holds the static marketing site for rstest-bdd v0.6.0.
-The site source is `index.html` and `assets/` at the repository root;
+This repository holds the static marketing site for rstest-bdd v0.6.0. The site
+source is `index.html` and `assets/` at the repository root;
 `scripts/build-site.mjs` copies them into `dist/` for deployment.
 
 ## Source of Truth
@@ -32,13 +32,13 @@ Use the `Makefile` as the primary entry point for repository checks.
   - Runs `npm run build` to regenerate `dist/`, then a smoke test over
     the generated output.
 
-For commit gating, run `git diff --check`, `make check-fmt`,
-`make lint`, and `make test`.
+For commit gating, run `git diff --check`, `make check-fmt`, `make lint`, and
+`make test`.
 
 ## Deployment
 
-`.github/workflows/publish-pages.yml` builds `dist/` and deploys it to
-GitHub Pages on every push to `main`. The production URL is
+`.github/workflows/publish-pages.yml` builds `dist/` and deploys it to GitHub
+Pages on every push to `main`. The production URL is
 <https://leynos.github.io/rstest-bdd-www/>; the `og:url` and `og:image`
 metadata in `index.html` reference it absolutely.
 
