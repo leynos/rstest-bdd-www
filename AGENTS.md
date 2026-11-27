@@ -39,6 +39,11 @@ Use the `Makefile` as the primary entry point for repository checks.
 - `make lint`
   - Verifies site links and fragments across the HTML source, and runs
     `node --check` against the build and check scripts.
+  - Runs `make yamllint` (`yamllint --strict` over every tracked `.yml` and
+    `.yaml` file, using `.yamllint.yml`, which extends the estate base
+    `.yamllint-estate.yml`) and `make actionlint` (the workflows and their
+    shell scripts). Both tools must be on `PATH`; CI installs them with
+    `leynos/shared-actions` `install-yaml-lint` in the `Lint` workflow.
 - `make test`
   - Runs `npm run build` to regenerate `dist/`, then a smoke test over
     the generated output.
